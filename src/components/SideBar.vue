@@ -4,10 +4,11 @@
     <div class="sidebar">
       <h5 class="sidebar-title">Chat Sidebar</h5>
       <ul class="list-group">
-        <li class="list-group-item">Chat 1</li>
-        <li class="list-group-item">Chat 2</li>
-        <li class="list-group-item">Chat 3</li>
-        <li class="list-group-item">Chat 4</li>
+        <li v-for="chat in chats"
+            :key="chat.id"
+            @click="handleChatClick(chat.id)"
+            class="list-group-item">
+          {{ chat.name }}</li>
       </ul>
     </div>
   </div>
@@ -15,7 +16,17 @@
 
 <script>
 export default {
-  name: "SideBar",
+  props: {
+    chats: {
+      type: Array,
+      required: true
+    }
+  },
+  methods: {
+    handleChatClick(chat) {
+      this.$emit('chat-selected', chat);
+    }
+  }
 };
 </script>
 
@@ -44,6 +55,7 @@ export default {
 }
 
 .list-group-item {
+  cursor: pointer;
   background-color: #343a40;
   color: #fff;
   border: none;

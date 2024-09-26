@@ -1,0 +1,12 @@
+{
+  "messages": [
+    {
+      "sender": "User",
+      "text": "你好，LLaMA！"
+    },
+    {
+      "sender": "LLaMA",
+      "text": "你好！有什么我可以帮助你的吗？"
+    }
+  ]
+}

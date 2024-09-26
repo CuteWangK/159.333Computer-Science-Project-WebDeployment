@@ -2,12 +2,12 @@
   <div class="home-container">
     <!-- 侧边栏 -->
     <div class="sidebar-container">
-      <SideBar />
+      <SideBar :chats="chats" @chat-selected="selectChat" />
     </div>
 
     <!-- 聊天区域 -->
     <div class="chat-area-container">
-      <ChatArea />
+      <ChatArea :chatFilePath="chatFilePath" />
     </div>
   </div>
 </template>
@@ -17,8 +17,37 @@ import SideBar from "@/components/SideBar.vue";
 import ChatArea from "@/components/ChatArea.vue";
 
 export default {
-  name: "HomeView",
-  components: {SideBar, ChatArea},
+  components: {
+    SideBar,
+    ChatArea
+  },
+  data() {
+    return {
+      chats: [], // 聊天列表
+      chatFilePath: null // 当前选中的聊天
+    };
+  },
+  mounted() {
+    // 从JSON文件加载聊天数据
+    fetch('/data/chats.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('网络响应错误');
+          }
+          return response.json();
+        })
+        .then(data => {
+          this.chats = data; // 将获取的数据赋值给 chats 数组
+        })
+        .catch(error => {
+          console.error('获取聊天数据时出错:', error); // 处理任何错误
+        });
+  },
+  methods: {
+    selectChat(chat) {
+      this.chatFilePath = `/data/chat${chat}.json` // 设置选中的聊天
+    }
+  }
 };
 </script>
 

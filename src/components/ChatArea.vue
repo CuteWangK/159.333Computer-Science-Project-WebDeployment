@@ -28,11 +28,51 @@ export default {
     return {
       newMessage: "", // 输入的新消息
       messages: [], // 消息记录
+      loading :false
     };
   },
+  props: {
+    chatFilePath: {
+      type: String,
+      required: true // 确保路径为必填项
+    }
+  },
+  watch: {
+    chatFilePath(newPath) {
+
+      if (newPath) {
+        this.loadChatData(newPath);
+      }
+
+    }
+  },
   methods: {
+    loadChatData(path) {
+      this.loading = true; // 开始加载
+      this.error = null;   // 清除之前的错误信息
+
+      // 读取 JSON 文件
+      fetch(path)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('无法加载聊天内容');
+            }
+            return response.json();
+          })
+          .then(data => {
+            this.messages = data.messages; // 假设 messages 是 JSON 文件中的内容
+          })
+          .catch(err => {
+            this.error = err.message; // 记录错误信息
+            console.error('加载聊天数据时出错:', err);
+          })
+          .finally(() => {
+            this.loading = false; // 完成加载
+          });
+    },
     async sendMessage() {
       if (this.newMessage.trim() !== "") {
+
         // 推送新消息到消息数组
         this.messages.push({
           sender: "You",
