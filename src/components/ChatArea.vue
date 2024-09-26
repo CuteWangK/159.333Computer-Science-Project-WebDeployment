@@ -31,16 +31,52 @@ export default {
     };
   },
   methods: {
-    // 发送消息
-    sendMessage() {
+    async sendMessage() {
       if (this.newMessage.trim() !== "") {
         // 推送新消息到消息数组
         this.messages.push({
           sender: "You",
           text: this.newMessage,
         });
+
+        // 保存当前用户输入的消息
+        const userMessage = this.newMessage;
+
         // 清空输入框
         this.newMessage = "";
+
+        try {
+          // 调用后端 API，发送用户输入
+          const response = await fetch("http://localhost:5000/generate-question", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ content: userMessage }),
+          });
+
+
+          if (response.ok) {
+            const data = await response.json();
+            // 推送后端返回的问题到消息数组
+            this.messages.push({
+              sender: "LLaMA",
+              text: data.question,
+            });
+          } else {
+            // 如果请求失败，显示错误消息
+            this.messages.push({
+              sender: "Error",
+              text: "无法生成问题，请稍后重试。",
+            });
+          }
+        } catch (error) {
+          // 捕获请求错误
+          this.messages.push({
+            sender: "Error",
+            text: "无法连接到服务器，请检查网络。",
+          });
+        }
       }
     },
   },
