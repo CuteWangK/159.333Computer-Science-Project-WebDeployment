@@ -1,22 +1,25 @@
 <template>
-  <div class="app-container">
-    <!-- 侧边栏 -->
-    <div class="sidebar">
-      <h5 class="sidebar-title">Chat Sidebar</h5>
-      <ul class="list-group">
-        <li v-for="chat in sortedChats"
-            :key="chat.timestamp"
-            @click="handleChatClick(chat.uuid)"
-            class="list-group-item">
-          {{ chat.name }}({{formatTimestamp(chat.timestamp)}})</li>
-      </ul>
-    </div>
+  <div class="sidebar">
+    <h5 class="sidebar-title">Chat Sidebar</h5>
+
+    <!-- 添加新聊天按钮 -->
+    <button class="btn btn-primary mb-3" @click="addNewChat">NEW CHAT</button>
+
+    <ul class="list-group">
+      <li v-for="chat in sortedChats" :key="chat.uuid" class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <span @click="handleChatClick(chat.uuid)">
+            {{ chat.name }} ({{ formatTimestamp(chat.timestamp) }})
+          </span>
+          <button class="btn btn-danger btn-sm" @click="deleteChat(chat.uuid)">Delete</button>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
 export default {
-
   props: {
     chats: {
       type: Array,
@@ -25,9 +28,8 @@ export default {
   },
   computed: {
     sortedChats() {
-      let thisChats = [];
-      thisChats = this.chats
-      return thisChats.sort((a, b) => b.timestamp - a.timestamp);
+      // eslint-disable-next-line vue/no-mutating-props,vue/no-side-effects-in-computed-properties
+      return this.chats.sort((a, b) => b.timestamp - a.timestamp);
     }
   },
   methods: {
@@ -37,19 +39,19 @@ export default {
     },
     handleChatClick(chat) {
       this.$emit('chat-selected', chat);
+    },
+    addNewChat() {
+      this.$emit('add-new-chat');
+    },
+    deleteChat(chatId) {
+      // 触发父组件事件，传递需要删除的聊天 ID
+      this.$emit('delete-chat', chatId);
     }
   }
 };
 </script>
 
 <style scoped>
-/* 布局容器 */
-.app-container {
-  display: flex;
-  height: 100vh;
-}
-
-/* 侧边栏样式 */
 .sidebar {
   width: 250px;
   background-color: #343a40;
@@ -66,6 +68,7 @@ export default {
   margin-bottom: 20px;
 }
 
+
 .list-group-item {
   cursor: pointer;
   background-color: #343a40;
@@ -78,27 +81,9 @@ export default {
   background-color: #495057;
 }
 
-/* 主内容样式 */
-.main-content {
-  margin-left: 250px; /* 主页面内容要避免被侧边栏遮住 */
-  padding: 20px;
-  width: calc(100% - 250px);
-  height: 100%;
-  overflow-y: auto;
-}
-
-.chat-box {
-  background-color: #f8f9fa;
-  padding: 20px;
-  height: 80%;
-  overflow-y: scroll;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.chat-input {
-  margin-top: 10px;
+.d-flex {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
 }
+
 </style>
