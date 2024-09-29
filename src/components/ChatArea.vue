@@ -28,6 +28,7 @@ function getTimestamp() {
 
 export default {
   name: "ChatArea",
+
   data() {
     return {
       newMessage: "",

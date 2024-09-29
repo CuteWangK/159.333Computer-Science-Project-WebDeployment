@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 export default {
+
   components: {
     SideBar,
     ChatArea
@@ -33,6 +34,7 @@ export default {
   mounted() {
     // 初次加载时获取聊天记录
     this.fetchChats();
+    this.interval = setInterval(this.fetchChats, 5000);
   },
   methods: {
     // 获取聊天记录

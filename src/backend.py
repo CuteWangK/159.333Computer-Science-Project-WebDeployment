@@ -147,6 +147,18 @@ def handle_get_index():
                 print(f"文件 {filename} 不存在或为空。")
     return jsonify({'chats': chats}), 200
 
+files = {
+    "66f92419-6ca8-8003-a696-8c67c0838e2c": {"title": "示例文件", "content": "这是与 UUID 关联的内容。"},
+    # 其他文件...
+}
+@app.route('/files/<uuid>', methods=['GET'])
+def get_file(uuid):
+    file_data = files.get(uuid)
+    if file_data:
+        return jsonify(file_data)
+    else:
+        return jsonify({"error": "文件未找到"}), 404
+
 
 @app.route('/DeleteChat', methods=['DELETE'])
 def delete_chat():
