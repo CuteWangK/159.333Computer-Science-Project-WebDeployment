@@ -7,7 +7,9 @@
 
     <!-- 聊天区域 -->
     <div class="chat-area-container">
-      <ChatArea :chatId="chatId" />
+      <!-- 仅当有选中聊天时，才显示 ChatArea -->
+      <ChatArea v-if="chatId" :chatId="chatId" />
+      <div v-else class="no-chat">请选择一个聊天或新建一个聊天</div>
     </div>
   </div>
 </template>
@@ -15,7 +17,7 @@
 <script>
 import SideBar from "@/components/SideBar.vue";
 import ChatArea from "@/components/ChatArea.vue";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'; // 引入 UUID 生成器
 
 export default {
   components: {
@@ -38,23 +40,23 @@ export default {
       fetch('http://localhost:5000/Get_index', {
         method: "GET",
       })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('网络响应不是 OK');
-            }
-            return response.json();
-          })
-          .then(data => {
-            this.chats = data['chats'];
-          })
-          .catch(error => {
-            console.error('发生错误:', error);
-          });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('网络响应不是 OK');
+        }
+        return response.json();
+      })
+      .then(data => {
+        this.chats = data['chats'];
+      })
+      .catch(error => {
+        console.error('发生错误:', error);
+      });
     },
 
     // 处理选中聊天
     selectChat(chat) {
-      this.chatId = chat;
+      this.chatId = chat; // 设置选中的聊天ID
     },
 
     // 处理添加新聊天
@@ -73,7 +75,7 @@ export default {
       this.saveNewChat(newChat);
     },
 
-    // 保存新聊天记录到后端
+    // 保存新聊天记录到后端（不包含系统信息）
     saveNewChat(newChat) {
       fetch('http://localhost:5000/Save', {
         method: "POST",
@@ -82,11 +84,7 @@ export default {
         },
         body: JSON.stringify({
           id: newChat.uuid,
-          messages: [{
-            sender: "System",
-            text: newChat.name,
-            timestamp: newChat.timestamp
-          }]
+          messages: [] // 不插入系统信息，初始化为空的聊天记录
         })
       })
           .then(response => {
@@ -155,5 +153,14 @@ export default {
   padding: 20px;
   display: flex;
   flex-direction: column;
+}
+
+.no-chat {
+  font-size: 1.2em;
+  color: #888;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 </style>
