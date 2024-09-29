@@ -155,11 +155,15 @@ files = {
     "66f92419-6ca8-8003-a696-8c67c0838e2c": {"title": "示例文件", "content": "这是与 UUID 关联的内容。"},
     # 其他文件...
 }
-@app.route('/files/<uuid>', methods=['GET'])
+
+@app.route('/chat/<uuid>', methods=['GET'])
 def get_file(uuid):
-    file_data = files.get(uuid)
-    if file_data:
-        return jsonify(file_data)
+    file_path = os.path.join(CHAT_DIR, f'{uuid}.json')
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+    if data:
+        return jsonify(data),200
     else:
         return jsonify({"error": "文件未找到"}), 404
 
@@ -184,11 +188,6 @@ def delete_chat():
         return jsonify({'error': '聊天记录不存在'}), 404
 
 
-# 获取聊天记录
-@app.route('/messages/<user_id>', methods=['GET'])
-def get_messages(user_id):
-    messages = load_chat_history(user_id)
-    return jsonify(messages), 200
 
 
 # 启动 Flask 应用

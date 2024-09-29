@@ -1,26 +1,18 @@
 <template>
   <div class="chat-container">
-    <!-- 聊天显示区域 -->
     <div class="chat-box">
-      <div
-        v-for="(message, index) in messages"
-        :key="index"
-        :class="['message', message.sender === 'You' ? 'message-right' : 'message-left']"
-      >
-        <div class="message-content">
-          <strong>{{ message.sender }}:</strong> {{ message.text }} <small class="timestamp">({{ formatTimestamp(message.timestamp) }})</small>
-        </div>
+      <div v-for="(message, index) in messages" :key="index" class="message">
+        <strong>{{ message.sender }}({{ formatTimestamp(message.timestamp) }}):</strong> {{ message.text }}
       </div>
     </div>
 
-    <!-- 聊天输入区域 -->
     <div class="chat-input">
       <input
-        v-model="newMessage"
-        type="text"
-        class="form-control"
-        placeholder="请输入您的消息"
-        @keyup.enter="sendMessage"
+          v-model="newMessage"
+          type="text"
+          class="form-control"
+          placeholder="请输入您的消息"
+          @keyup.enter="sendMessage"
       />
       <button class="btn btn-success mt-2" @click="sendMessage">发送</button>
     </div>
@@ -28,70 +20,40 @@
 </template>
 
 <script>
-function getTimestamp() {
-  return Math.floor(Date.now() / 1000);
-}
+import { ref, onMounted, nextTick, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import axios from 'axios';
 
 export default {
   name: "ChatArea",
 
-  data() {
-    return {
-      newMessage: "",
-      messages: [],
-      loading: false
+  setup() {
+    const route = useRoute();
+    const uuid = ref(route.params.uuid); // 使用 ref 包装 uuid
+    const messages = ref([]);
+    const newMessage = ref("");
+    const loading = ref(false);
+
+    const getTimestamp = () => {
+      return Math.floor(Date.now() / 1000);
     };
-  },
-  props: {
-    chatId: {
-      type: String,
-      required: true
-    }
-  },
-  watch: {
-    chatId(newPath) {
-    if (newPath) {
-      // 确保路径有效才进行加载
-      this.loadChatData(`/data/${newPath}.json`);
-    }
-  }
-  },
-  methods: {
-    formatTimestamp(timestamp) {
+
+    const formatTimestamp = (timestamp) => {
       const date = new Date(timestamp * 1000);
       return date.toLocaleString();
-    },
-    loadChatData(path) {
-      this.loading = true;
-      this.error = null;
-      fetch(path)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('无法加载聊天内容');
-          }
-          return response.json();
-        })
-        .then(data => {
-          this.messages = data.messages;
-        })
-        .catch(err => {
-          this.error = err.message;
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-    async sendMessage() {
-      if (this.newMessage.trim() !== "") {
-        this.loading = true;
-        const timestamp = getTimestamp();
-        this.messages.push({
+    };
+
+    const sendMessage = async () => {
+      if (newMessage.value.trim() !== "") {
+        loading.value = true;
+        messages.value.push({
           sender: "You",
-          text: this.newMessage,
-          timestamp: timestamp
+          text: newMessage.value,
+          timestamp: getTimestamp(),
         });
-        const userMessage = this.newMessage;
-        this.newMessage = ""; // 清空输入框
+
+        const userMessage = newMessage.value;
+        newMessage.value = ""; // 清空输入框
 
         try {
           const response = await fetch("http://localhost:5000/generate-question", {
@@ -104,52 +66,84 @@ export default {
 
           if (response.ok) {
             const data = await response.json();
-            this.messages.push({
+            messages.value.push({
               sender: "LLaMA",
               text: data.question,
-              timestamp: getTimestamp()
+              timestamp: getTimestamp(),
             });
           } else {
-            this.messages.push({
+            messages.value.push({
               sender: "Error",
               text: "无法生成问题，请稍后重试。",
-              timestamp: getTimestamp()
+              timestamp: getTimestamp(),
             });
           }
         } catch (error) {
-          this.messages.push({
+          messages.value.push({
             sender: "Error",
             text: "无法连接到服务器，请检查网络。",
-            timestamp: getTimestamp()
+            timestamp: getTimestamp(),
           });
         } finally {
-          this.loading = false;
-          // 保存消息
-          this.saveMessages();
-          this.$nextTick(() => {
-            const chatBox = this.$el.querySelector('.chat-box');
+          loading.value = false; // 完成发送
+          await saveMessage();
+          nextTick(() => {
+            const chatBox = document.querySelector('.chat-box');
             chatBox.scrollTop = chatBox.scrollHeight; // 滚动到最新消息
           });
         }
       }
-    },
-    async saveMessages() {
+    };
+
+    const saveMessage = async () => {
       try {
         await fetch("http://localhost:5000/Save", {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            id: this.chatId,
-            messages: this.messages
-          })
+            id: uuid.value,
+            messages: messages.value,
+          }),
         });
       } catch (error) {
-        console.error('保存消息时出错:', error);
+        console.error("保存消息时出错:", error);
       }
-    }
-  }
+    };
+
+    const loadChatData = async (id) => {
+      loading.value = true;
+      try {
+        const response = await axios.get(`http://localhost:5000/chat/${id}`); // 替换为您的 API 地址
+        messages.value = response.data.messages || [];
+      } catch (error) {
+        console.error("获取文件时出错:", error);
+      } finally {
+        loading.value = false; // 完成加载
+      }
+    };
+
+    onMounted(() => {
+      loadChatData(uuid.value); // 组件挂载时加载数据
+    });
+
+    watch(
+        () => route.params.uuid, // 侦听 UUID 的变化
+        (newUUID) => {
+          uuid.value = newUUID; // 更新 uuid
+          loadChatData(newUUID); // 加载新的聊天内容
+        }
+    );
+
+    return {
+      newMessage,
+      messages,
+      sendMessage,
+      formatTimestamp,
+      loading,
+    };
+  },
 };
 </script>
 
@@ -169,38 +163,10 @@ export default {
   border: 1px solid #ddd;
   border-radius: 5px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
 .message {
-  display: flex;
-  max-width: 60%;
   margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  word-wrap: break-word;
-}
-
-.message-left {
-  align-self: flex-start;
-  background-color: #e9ecef;
-}
-
-.message-right {
-  align-self: flex-end;
-  background-color: #d4edda;
-}
-
-.message-content {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.timestamp {
-  color: #888;
-  font-size: 0.8em;
-  margin-left: 10px;
 }
 
 .chat-input {

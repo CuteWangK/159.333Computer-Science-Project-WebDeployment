@@ -9,6 +9,36 @@
             "sender": "LLaMA",
             "text": "你好！很高兴与你交流。您需要讨论什么呢？",
             "timestamp": 1727603511
+        },
+        {
+            "sender": "You",
+            "text": "你好",
+            "timestamp": 1727608577
+        },
+        {
+            "sender": "LLaMA",
+            "text": "您好！是从哪里来访问我的？需要什么帮助吗？",
+            "timestamp": 1727608581
+        },
+        {
+            "sender": "You",
+            "text": "你好",
+            "timestamp": 1727609421
+        },
+        {
+            "sender": "LLaMA",
+            "text": "你好！很高兴和你交流。您有什么问题或想聊的主题吗？",
+            "timestamp": 1727609423
+        },
+        {
+            "sender": "You",
+            "text": "你好",
+            "timestamp": 1727610200
+        },
+        {
+            "sender": "LLaMA",
+            "text": "您好！很高兴和您交流。您需要我帮忙什么吗？",
+            "timestamp": 1727610205
         }
     ]
 }

@@ -50,18 +50,18 @@ export default {
       fetch('http://localhost:5000/Get_index', {
         method: "GET",
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('网络响应不是 OK');
-        }
-        return response.json();
-      })
-      .then(data => {
-        this.chats = data['chats'];
-      })
-      .catch(error => {
-        console.error('发生错误:', error);
-      });
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('网络响应不是 OK');
+            }
+            return response.json();
+          })
+          .then(data => {
+            this.chats = data['chats'];
+          })
+          .catch(error => {
+            console.error('发生错误:', error);
+          });
     },
 
     // 处理选中聊天
@@ -97,20 +97,20 @@ export default {
           messages: [] // 不插入系统信息，初始化为空的聊天记录
         })
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('保存聊天记录失败');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('聊天记录已保存:', data);
-        // 刷新页面或重新获取聊天记录
-        this.fetchChats();
-      })
-      .catch(error => {
-        console.error('发生错误:', error);
-      });
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('保存聊天记录失败');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('聊天记录已保存:', data);
+            // 刷新页面或重新获取聊天记录
+            this.fetchChats();
+          })
+          .catch(error => {
+            console.error('发生错误:', error);
+          });
     },
 
     // 处理删除聊天
@@ -119,24 +119,24 @@ export default {
       fetch(`http://localhost:5000/DeleteChat?id=${chatId}`, {
         method: "DELETE"
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('删除聊天失败');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('聊天已删除:', data);
-        // 从前端列表中移除聊天
-        this.chats = this.chats.filter(chat => chat.uuid !== chatId);
-        // 重置当前选中的聊天
-        if (this.chatId === chatId) {
-          this.chatId = null;
-        }
-      })
-      .catch(error => {
-        console.error('发生错误:', error);
-      });
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('删除聊天失败');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('聊天已删除:', data);
+            // 从前端列表中移除聊天
+            this.chats = this.chats.filter(chat => chat.uuid !== chatId);
+            // 重置当前选中的聊天
+            if (this.chatId === chatId) {
+              this.chatId = null;
+            }
+          })
+          .catch(error => {
+            console.error('发生错误:', error);
+          });
     }
   }
 };
