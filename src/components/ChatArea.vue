@@ -3,7 +3,7 @@
     <!-- 聊天显示区域 -->
     <div class="chat-box">
       <div v-for="(message, index) in messages" :key="index" class="message">
-        <strong>{{ message.sender }}:</strong> {{ message.text }}
+        <strong>{{ message.sender }}({{ formatTimestamp(message.timestamp) }}):</strong> {{ message.text }}
       </div>
     </div>
 
@@ -22,31 +22,38 @@
 </template>
 
 <script>
+function getTimestamp() {
+  return Math.floor(Date.now() / 1000);
+}
+
 export default {
   name: "ChatArea",
   data() {
     return {
       newMessage: "", // 输入的新消息
-      messages: [], // 消息记录
+      messages: [],
+      newMessages: [],
       loading :false
     };
   },
   props: {
-    chatFilePath: {
+    chatId: {
       type: String,
       required: true // 确保路径为必填项
     }
   },
   watch: {
-    chatFilePath(newPath) {
-
-      if (newPath) {
-        this.loadChatData(newPath);
-      }
-
+    chatId(newPath) {
+        this.loadChatData(`/data/chat${newPath}.json`);
     }
   },
+
   methods: {
+
+    formatTimestamp(timestamp) {
+      const date = new Date(timestamp * 1000);
+      return date.toLocaleString();
+    },
     loadChatData(path) {
       this.loading = true; // 开始加载
       this.error = null;   // 清除之前的错误信息
@@ -71,54 +78,83 @@ export default {
           });
     },
     async sendMessage() {
+      this.newMessages = []
       if (this.newMessage.trim() !== "") {
-
+        this.loading = true; // 开始发送
         // 推送新消息到消息数组
         this.messages.push({
           sender: "You",
           text: this.newMessage,
+          timestamp: getTimestamp()
         });
-
-        // 保存当前用户输入的消息
+        this.newMessages.push({
+          sender: "You",
+          text: this.newMessage,
+          timestamp: getTimestamp()
+        });
         const userMessage = this.newMessage;
-
-        // 清空输入框
-        this.newMessage = "";
+        this.newMessage = ""; // 清空输入框
 
         try {
-          // 调用后端 API，发送用户输入
           const response = await fetch("http://localhost:5000/generate-question", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ content: userMessage }),
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content: userMessage }),
           });
-
 
           if (response.ok) {
             const data = await response.json();
-            // 推送后端返回的问题到消息数组
             this.messages.push({
               sender: "LLaMA",
               text: data.question,
+              timestamp: getTimestamp()
+            });
+            this.newMessages.push({
+              sender: "LLaMA",
+              text: data.question,
+              timestamp: getTimestamp()
             });
           } else {
-            // 如果请求失败，显示错误消息
             this.messages.push({
               sender: "Error",
               text: "无法生成问题，请稍后重试。",
+              timestamp: getTimestamp()
             });
           }
         } catch (error) {
-          // 捕获请求错误
           this.messages.push({
             sender: "Error",
             text: "无法连接到服务器，请检查网络。",
+            timestamp: getTimestamp()
           });
+        } finally {
+          this.loading = false; // 完成发送
+            await this.saveMessage()
+            this.$nextTick(() => {
+            const chatBox = this.$el.querySelector('.chat-box');
+            chatBox.scrollTop = chatBox.scrollHeight; // 滚动到最新消息
+          })
         }
       }
     },
+    async saveMessage() {
+      try {
+        await fetch("http://localhost:5000/Save", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id: 1, // 使用传入的 chatId
+            messages: this.messages // 发送当前消息记录
+          })
+        });
+      } catch (error) {
+        console.error('保存消息时出错:', error);
+      }
+    }
   },
 };
 </script>

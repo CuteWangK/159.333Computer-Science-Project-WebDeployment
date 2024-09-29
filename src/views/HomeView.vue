@@ -7,7 +7,7 @@
 
     <!-- 聊天区域 -->
     <div class="chat-area-container">
-      <ChatArea :chatFilePath="chatFilePath" />
+      <ChatArea :chatId="chatId" />
     </div>
   </div>
 </template>
@@ -24,11 +24,11 @@ export default {
   data() {
     return {
       chats: [], // 聊天列表
-      chatFilePath: null // 当前选中的聊天
+      chatId: null // 当前选中的聊天
     };
   },
   mounted() {
-    // 从JSON文件加载聊天数据
+
     fetch('/data/chats.json')
         .then(response => {
           if (!response.ok) {
@@ -42,10 +42,22 @@ export default {
         .catch(error => {
           console.error('获取聊天数据时出错:', error); // 处理任何错误
         });
+    this.chatId =  fetch("http://localhost:5000/generate-question", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: this.chats }),
+    });
+  },
+  computed: {
+    sortedChats() {
+      return this.messages.sort((a, b) => a.timestamp - b.timestamp);
+    }
   },
   methods: {
     selectChat(chat) {
-      this.chatFilePath = `/data/chat${chat}.json` // 设置选中的聊天
+      this.chatId = chat // 设置选中的聊天
     }
   }
 };
