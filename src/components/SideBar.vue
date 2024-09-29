@@ -4,11 +4,11 @@
     <div class="sidebar">
       <h5 class="sidebar-title">Chat Sidebar</h5>
       <ul class="list-group">
-        <li v-for="chat in chats"
-            :key="chat.id"
-            @click="handleChatClick(chat.id)"
+        <li v-for="chat in sortedChats"
+            :key="chat.timestamp"
+            @click="handleChatClick(chat.uuid)"
             class="list-group-item">
-          {{ chat.name }}</li>
+          {{ chat.name }}({{formatTimestamp(chat.timestamp)}})</li>
       </ul>
     </div>
   </div>
@@ -16,13 +16,25 @@
 
 <script>
 export default {
+
   props: {
     chats: {
       type: Array,
       required: true
     }
   },
+  computed: {
+    sortedChats() {
+      let thisChats = [];
+      thisChats = this.chats
+      return thisChats.sort((a, b) => b.timestamp - a.timestamp);
+    }
+  },
   methods: {
+    formatTimestamp(timestamp) {
+      const date = new Date(timestamp * 1000);
+      return date.toLocaleString();
+    },
     handleChatClick(chat) {
       this.$emit('chat-selected', chat);
     }

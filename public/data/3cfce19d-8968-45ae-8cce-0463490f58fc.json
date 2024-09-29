@@ -1,0 +1,44 @@
+{
+    "messages": [
+        {
+            "sender": "You",
+            "text": "你好",
+            "timestamp": 1727597339
+        },
+        {
+            "sender": "LLaMA",
+            "text": "你好！我是中文AI助手。欢迎来聊天！",
+            "timestamp": 1727597341
+        },
+        {
+            "sender": "You",
+            "text": "你好",
+            "timestamp": 1727597352
+        },
+        {
+            "sender": "LLaMA",
+            "text": "您好！我是英语机器人。很高兴与你交谈。您想聊些什么？",
+            "timestamp": 1727597354
+        },
+        {
+            "sender": "You",
+            "text": "你好",
+            "timestamp": 1727597385
+        },
+        {
+            "sender": "LLaMA",
+            "text": "您好！我是中文聊天機器人。很高興遇到你。有什麼問題需要幫助嗎？",
+            "timestamp": 1727597387
+        },
+        {
+            "sender": "You",
+            "text": "你好",
+            "timestamp": 1727597483
+        },
+        {
+            "sender": "LLaMA",
+            "text": "你好！我可以帮助你什么事吗？",
+            "timestamp": 1727597485
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "messages": [
+        {
+            "sender": "You",
+            "text": "你好",
+            "timestamp": 1727601099
+        },
+        {
+            "sender": "LLaMA",
+            "text": "您好！我是中文模型。如何可以为您服务？",
+            "timestamp": 1727601101
+        }
+    ]
+}

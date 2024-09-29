@@ -1,5 +1,8 @@
 import json
 import os
+import uuid
+
+from dns import tokenizer
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import subprocess
@@ -73,9 +76,15 @@ def handle_save():
     if 'messages' not in data or not isinstance(data['messages'], list):
         return jsonify({'error': '消息格式不正确'}), 400
 
-    chat_id = data['id']
+
     messages = data['messages']
-    chat_file_path = os.path.join(CHAT_DIR, f'chat{chat_id}.json')
+    if data['id'] == None:
+        chat_id = str(uuid.uuid4())
+    else:
+        chat_id = data['id']
+    chat_timestamp = messages[0]['timestamp']
+    chat_name = "chat0101"
+    chat_file_path = os.path.join(CHAT_DIR, f'{chat_id}.json')
 
     try:
         with open(chat_file_path, 'w', encoding='utf-8') as f:
@@ -106,6 +115,39 @@ def load_chat():
             return jsonify(data['messages'])
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+CORS(app)
+
+
+@app.route('/Get_index', methods=['GET'])
+# load index
+def handle_get_index():
+
+    chats = []
+    for filename in os.listdir(CHAT_DIR):
+        if filename.endswith('.json'):  # if json
+
+            file_path = os.path.join(CHAT_DIR, filename)
+            uuid, _ = os.path.splitext(filename)
+            if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    try:
+                        data = json.load(file)  # 读取 JSON 数据
+                        timestamp = data['messages'][0]['timestamp']
+                        chat = {
+                            "uuid": uuid,
+                            "name": data['messages'][0]['text'],
+                            "timestamp": timestamp
+                        }
+                        chats.append(chat)
+                    except json.JSONDecodeError:
+                        print(f"文件 {filename} 不是有效的 JSON 格式。")
+            else:
+                print(f"文件 {filename} 不存在或为空。")
+    return jsonify({'chats': chats}), 200
+
+
 
 @app.route('/messages/<user_id>', methods=['GET'])
 def get_messages(user_id):

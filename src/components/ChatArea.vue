@@ -1,13 +1,13 @@
 <template>
   <div class="chat-container">
-    <!-- 聊天显示区域 -->
+
     <div class="chat-box">
       <div v-for="(message, index) in messages" :key="index" class="message">
         <strong>{{ message.sender }}({{ formatTimestamp(message.timestamp) }}):</strong> {{ message.text }}
       </div>
     </div>
 
-    <!-- 聊天输入区域 -->
+
     <div class="chat-input">
       <input
         v-model="newMessage"
@@ -30,7 +30,7 @@ export default {
   name: "ChatArea",
   data() {
     return {
-      newMessage: "", // 输入的新消息
+      newMessage: "",
       messages: [],
       newMessages: [],
       loading :false
@@ -39,22 +39,23 @@ export default {
   props: {
     chatId: {
       type: String,
-      required: true // 确保路径为必填项
+      required: true
     }
   },
   watch: {
     chatId(newPath) {
-        this.loadChatData(`/data/chat${newPath}.json`);
+        this.loadChatData(`/data/${newPath}.json`);
+
     }
   },
 
   methods: {
-
     formatTimestamp(timestamp) {
       const date = new Date(timestamp * 1000);
       return date.toLocaleString();
     },
     loadChatData(path) {
+      console.log(path);
       this.loading = true; // 开始加载
       this.error = null;   // 清除之前的错误信息
 
@@ -78,10 +79,10 @@ export default {
           });
     },
     async sendMessage() {
+
       this.newMessages = []
       if (this.newMessage.trim() !== "") {
-        this.loading = true; // 开始发送
-        // 推送新消息到消息数组
+        this.loading = true;
         this.messages.push({
           sender: "You",
           text: this.newMessage,
@@ -147,8 +148,8 @@ export default {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            id: 1, // 使用传入的 chatId
-            messages: this.messages // 发送当前消息记录
+            id: this.chatId,
+            messages: this.messages
           })
         });
       } catch (error) {

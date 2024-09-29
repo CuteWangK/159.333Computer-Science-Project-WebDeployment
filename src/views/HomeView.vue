@@ -15,6 +15,11 @@
 <script>
 import SideBar from "@/components/SideBar.vue";
 import ChatArea from "@/components/ChatArea.vue";
+import { v4 as uuidv4 } from 'uuid';
+
+function newChet() {
+  this.chatId = uuidv4()
+}
 
 export default {
   components: {
@@ -28,32 +33,27 @@ export default {
     };
   },
   mounted() {
-
-    fetch('/data/chats.json')
+    fetch('http://localhost:5000/Get_index', {
+      method: "GET" ,
+    })
         .then(response => {
+        // 检查响应是否为成功
           if (!response.ok) {
-            throw new Error('网络响应错误');
+            throw new Error('网络响应不是 OK');
           }
-          return response.json();
+          return response.json(); // 将响应解析为 JSON
         })
         .then(data => {
-          this.chats = data; // 将获取的数据赋值给 chats 数组
+          this.chats = data['chats'];
+          console.log('获取的数据:', data); // 在控制台打印获取的数据
         })
         .catch(error => {
-          console.error('获取聊天数据时出错:', error); // 处理任何错误
+          console.error('发生错误:', error); // 处理错误
         });
-    this.chatId =  fetch("http://localhost:5000/generate-question", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content: this.chats }),
-    });
-  },
-  computed: {
-    sortedChats() {
-      return this.messages.sort((a, b) => a.timestamp - b.timestamp);
-    }
+
+
+
+    newChet()
   },
   methods: {
     selectChat(chat) {
