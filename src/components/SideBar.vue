@@ -8,9 +8,11 @@
     <ul class="list-group">
       <li v-for="chat in sortedChats" :key="chat.uuid" class="list-group-item">
         <div class="d-flex justify-content-between">
+          <!-- 点击聊天记录时触发 handleChatClick -->
           <span @click="handleChatClick(chat.uuid)">
             {{ chat.name }} ({{ formatTimestamp(chat.timestamp) }})
           </span>
+          <!-- 删除聊天 -->
           <button class="btn btn-danger btn-sm" @click="deleteChat(chat.uuid)">Delete</button>
         </div>
       </li>
@@ -28,7 +30,8 @@ export default {
   },
   computed: {
     sortedChats() {
-      // eslint-disable-next-line vue/no-mutating-props,vue/no-side-effects-in-computed-properties
+      // 按时间戳降序排列聊天记录
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties,vue/no-mutating-props
       return this.chats.sort((a, b) => b.timestamp - a.timestamp);
     }
   },
@@ -37,14 +40,16 @@ export default {
       const date = new Date(timestamp * 1000);
       return date.toLocaleString();
     },
-    handleChatClick(chat) {
-      this.$emit('chat-selected', chat);
+    handleChatClick(chatId) {
+      // 触发父组件的路由导航
+      this.$emit('chat-selected', chatId);
     },
     addNewChat() {
+      // 触发父组件添加新聊天事件
       this.$emit('add-new-chat');
     },
     deleteChat(chatId) {
-      // 触发父组件事件，传递需要删除的聊天 ID
+      // 触发父组件删除聊天事件
       this.$emit('delete-chat', chatId);
     }
   }
@@ -67,7 +72,6 @@ export default {
 .sidebar-title {
   margin-bottom: 20px;
 }
-
 
 .list-group-item {
   cursor: pointer;
