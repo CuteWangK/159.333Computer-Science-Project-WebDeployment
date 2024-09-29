@@ -148,6 +148,24 @@ def handle_get_index():
     return jsonify({'chats': chats}), 200
 
 
+@app.route('/DeleteChat', methods=['DELETE'])
+def delete_chat():
+    chat_id = request.args.get('id')
+
+    if not chat_id:
+        return jsonify({'error': '缺少聊天 ID'}), 400
+
+    chat_file_path = os.path.join(CHAT_DIR, f'{chat_id}.json')
+
+    if os.path.exists(chat_file_path):
+        try:
+            os.remove(chat_file_path)
+            return jsonify({'status': '聊天已删除'}), 200
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': '聊天记录不存在'}), 404
+
 
 @app.route('/messages/<user_id>', methods=['GET'])
 def get_messages(user_id):
