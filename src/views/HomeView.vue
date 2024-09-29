@@ -17,9 +17,7 @@ import SideBar from "@/components/SideBar.vue";
 import ChatArea from "@/components/ChatArea.vue";
 import { v4 as uuidv4 } from 'uuid';
 
-function newChet() {
-  this.chatId = uuidv4()
-}
+
 
 export default {
   components: {
@@ -32,33 +30,36 @@ export default {
       chatId: null // 当前选中的聊天
     };
   },
-  mounted() {
-    fetch('http://localhost:5000/Get_index', {
-      method: "GET" ,
-    })
-        .then(response => {
-        // 检查响应是否为成功
-          if (!response.ok) {
-            throw new Error('网络响应不是 OK');
-          }
-          return response.json(); // 将响应解析为 JSON
-        })
-        .then(data => {
-          this.chats = data['chats'];
-          console.log('获取的数据:', data); // 在控制台打印获取的数据
-        })
-        .catch(error => {
-          console.error('发生错误:', error); // 处理错误
-        });
 
-
-
-    newChet()
-  },
   methods: {
     selectChat(chat) {
       this.chatId = chat // 设置选中的聊天
+    },
+    async fetchChats(){
+      try {
+        const response = await fetch('http://localhost:5000/Get_index', {
+          method: "GET" ,
+        });
+        if (!response.ok) {
+          throw new Error('网络响应不是 OK');
+        }
+        const data = await response.json();
+        this.chats = data['chats'];
+        console.log('获取的数据:', data); // 监测原始数据
+        this.chats = data.chats; // 更新聊天记录
+      } catch (error) {
+        console.error('发生错误:', error);
+      }
     }
+  },
+  mounted() {
+    this.fetchChats()
+    if (this.chatId == null){
+      this.chatId = uuidv4();
+    }
+    this.interval = setInterval(() => {
+      this.fetchChats(); // 每0.5秒更新一次
+    }, 500);
   }
 };
 </script>
