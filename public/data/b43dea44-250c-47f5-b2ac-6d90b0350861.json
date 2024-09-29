@@ -3,12 +3,22 @@
         {
             "sender": "You",
             "text": "你好",
-            "timestamp": 1727606468
+            "timestamp": 1727601099
         },
         {
             "sender": "LLaMA",
-            "text": "你好！我是中文小助手。很高兴和你聊天！",
-            "timestamp": 1727606473
+            "text": "您好！我是中文模型。如何可以为您服务？",
+            "timestamp": 1727601101
+        },
+        {
+            "sender": "You",
+            "text": "你是什么版本",
+            "timestamp": 1727608730
+        },
+        {
+            "sender": "LLaMA",
+            "text": "我是 ChatGPT-3.2 2023 版本。",
+            "timestamp": 1727608739
         }
     ]
 }
