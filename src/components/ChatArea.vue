@@ -1,8 +1,11 @@
 <template>
   <div class="chat-container">
     <div class="chat-box">
-      <div v-for="(message, index) in messages" :key="index" class="message">
-        <strong>{{ message.sender }}({{ formatTimestamp(message.timestamp) }}):</strong> {{ message.text }}
+      <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender === 'You' ? 'user-message' : 'bot-message']">
+        <div class="message-content">
+          <strong>{{ message.sender }} ({{ formatTimestamp(message.timestamp) }}):</strong>
+          <div class="message-text">{{ message.text }}</div>
+        </div>
       </div>
     </div>
 
@@ -29,7 +32,7 @@ export default {
 
   setup() {
     const route = useRoute();
-    const uuid = ref(route.params.uuid); // 使用 ref 包装 uuid
+    const uuid = ref(route.params.uuid);
     const messages = ref([]);
     const newMessage = ref("");
     const loading = ref(false);
@@ -53,10 +56,10 @@ export default {
         });
 
         const userMessage = newMessage.value;
-        newMessage.value = ""; // 清空输入框
+        newMessage.value = "";
 
         try {
-          const response = await fetch("http://localhost:5000/generate-question", {
+          const response = await fetch(" http://127.0.0.1:5000/generate-answer", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -68,7 +71,7 @@ export default {
             const data = await response.json();
             messages.value.push({
               sender: "LLaMA",
-              text: data.question,
+              text: data.answer,
               timestamp: getTimestamp(),
             });
           } else {
@@ -85,11 +88,11 @@ export default {
             timestamp: getTimestamp(),
           });
         } finally {
-          loading.value = false; // 完成发送
+          loading.value = false;
           await saveMessage();
           nextTick(() => {
             const chatBox = document.querySelector('.chat-box');
-            chatBox.scrollTop = chatBox.scrollHeight; // 滚动到最新消息
+            chatBox.scrollTop = chatBox.scrollHeight;
           });
         }
       }
@@ -97,7 +100,7 @@ export default {
 
     const saveMessage = async () => {
       try {
-        await fetch("http://localhost:5000/Save", {
+        await fetch(" http://127.0.0.1:5000/Save", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -115,25 +118,25 @@ export default {
     const loadChatData = async (id) => {
       loading.value = true;
       try {
-        const response = await axios.get(`http://localhost:5000/chat/${id}`); // 替换为您的 API 地址
+        const response = await axios.get(` http://127.0.0.1:5000/chat/${id}`);
         messages.value = response.data.messages || [];
       } catch (error) {
         console.error("获取文件时出错:", error);
       } finally {
-        loading.value = false; // 完成加载
+        loading.value = false;
       }
     };
 
     onMounted(() => {
-      loadChatData(uuid.value); // 组件挂载时加载数据
+      loadChatData(uuid.value);
     });
 
     watch(
-        () => route.params.uuid, // 侦听 UUID 的变化
-        (newUUID) => {
-          uuid.value = newUUID; // 更新 uuid
-          loadChatData(newUUID); // 加载新的聊天内容
-        }
+      () => route.params.uuid,
+      (newUUID) => {
+        uuid.value = newUUID;
+        loadChatData(newUUID);
+      }
     );
 
     return {
@@ -166,7 +169,35 @@ export default {
 }
 
 .message {
+  display: flex;
   margin-bottom: 10px;
+}
+
+.user-message {
+  justify-content: flex-end; /* 用户消息靠右 */
+}
+
+.bot-message {
+  justify-content: flex-start; /* 机器人消息靠左 */
+}
+
+.message-content {
+  max-width: 60%;
+  padding: 10px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  word-wrap: break-word;
+  box-sizing: border-box; /* 确保内边距不影响宽度 */
+}
+
+.user-message .message-content {
+  background-color: #28a745;
+  color: white;
+  margin-left: auto; /* 用户消息右侧 */
+}
+
+.bot-message .message-content {
+  margin-right: 0; /* 确保机器人消息不超出左边界 */
 }
 
 .chat-input {

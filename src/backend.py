@@ -21,40 +21,62 @@ def clean_generated_text(text: str) -> str:
     return text.strip()
 
 
-# 调用 llama3.1 模型生成问题
-def generate_question(content: str) -> str:
-    prompt = content
+from llama_cpp import Llama
+
+# 加载 LLaMA 模型
+llama = Llama(model_path="D:/新建文件夹 (4)/下载/model-unsloth.Q4_K_M.gguf", n_gpu_layers=20)
+
+# 生成答案函数
+def generate_answer(content: str) -> str:
+    # 更新提示语，直接要求模型生成答案
+    prompt = f"Based on the provided context, generate a detailed answer: {content}"
+
     try:
-        result = subprocess.run(
-            ["ollama", "run", "llama3.1"],
-            input=prompt,
-            capture_output=True, text=True,
-            encoding='utf-8'
-        )
-        if result.returncode == 0:
-            question = result.stdout.strip()
-            return clean_generated_text(question)
+        # 生成答案，增加max_tokens长度以确保完整的答案
+        output = llama(prompt, max_tokens=64, temperature=0.8, top_p=0.9)
+
+        if output:  # 检查是否生成成功
+            answer = output["choices"][0]["text"].strip()
+            return clean_generated_text(answer)  # 清理生成的文本
         else:
-            print(f"Error generating question: {result.stderr}")
-            return "Error generating question."
+            return "Error generating answer."
     except Exception as e:
         print(f"Exception occurred: {str(e)}")
-        return "Error generating question."
+        return "Error generating answer."
 
 
-# 处理前端的请求，生成问题
-@app.route('/generate-question', methods=['POST'])
-def handle_generate_question():
+# 处理前端生成答案请求的路由
+@app.route('/generate-answer', methods=['POST'])
+def handle_generate_answer():
     data = request.get_json()
     user_message = data.get('content', '')
 
     if user_message:
-        ai_question = generate_question(user_message)
-        return jsonify({'question': ai_question}), 200
+        ai_answer = generate_answer(user_message)
+        return jsonify({'answer': ai_answer}), 200
     else:
-        return jsonify({'error': '无效输入'}), 400
+        return jsonify({'error': 'Invalid input'}), 400
 
 
+# 调用 llama3.1 模型生成问题
+# def generate_question(content: str) -> str:
+#     prompt = content
+#     try:
+#         result = subprocess.run(
+#             ["ollama", "run", "llama3.1"],
+#             input=prompt,
+#             capture_output=True, text=True,
+#             encoding='utf-8'
+#         )
+#         if result.returncode == 0:
+#             question = result.stdout.strip()
+#             return clean_generated_text(question)
+#         else:
+#             print(f"Error generating question: {result.stderr}")
+#             return "Error generating question."
+#     except Exception as e:
+#         print(f"Exception occurred: {str(e)}")
+#         return "Error generating question."
 # 加载聊天历史
 def load_chat_history(user_id):
     chat_file = os.path.join(CHAT_DIR, f'{user_id}_chat.json')
@@ -151,10 +173,12 @@ def handle_get_index():
                 print(f"文件 {filename} 不存在或为空。")
     return jsonify({'chats': chats}), 200
 
+
 files = {
     "66f92419-6ca8-8003-a696-8c67c0838e2c": {"title": "示例文件", "content": "这是与 UUID 关联的内容。"},
     # 其他文件...
 }
+
 
 @app.route('/chat/<uuid>', methods=['GET'])
 def get_file(uuid):
@@ -163,7 +187,7 @@ def get_file(uuid):
         data = json.load(file)
 
     if data:
-        return jsonify(data),200
+        return jsonify(data), 200
     else:
         return jsonify({"error": "文件未找到"}), 404
 
@@ -188,8 +212,6 @@ def delete_chat():
         return jsonify({'error': '聊天记录不存在'}), 404
 
 
-
-
 # 启动 Flask 应用
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=6000, debug=True)

@@ -47,7 +47,7 @@ export default {
   methods: {
     // 获取聊天记录
     fetchChats() {
-      fetch('http://localhost:5000/Get_index', {
+      fetch(' http://127.0.0.1:5000/Get_index', {
         method: "GET",
       })
           .then(response => {
@@ -87,7 +87,7 @@ export default {
 
     // 保存新聊天记录到后端（不包含系统信息）
     saveNewChat(newChat) {
-      fetch('http://localhost:5000/Save', {
+      fetch(' http://127.0.0.1:5000/Save', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -116,7 +116,7 @@ export default {
     // 处理删除聊天
     handleDeleteChat(chatId) {
       // 调用后端删除聊天的接口
-      fetch(`http://localhost:5000/DeleteChat?id=${chatId}`, {
+      fetch(` http://127.0.0.1:5000/DeleteChat?id=${chatId}`, {
         method: "DELETE"
       })
           .then(response => {
@@ -144,12 +144,13 @@ export default {
 
 <style scoped>
 .home-container {
+  width: 100%;
   display: flex;
   height: 100vh;
 }
 
 .sidebar-container {
-  width: 250px;
+  width: 12%;
   background-color: #343a40;
   color: white;
   display: flex;
@@ -158,9 +159,10 @@ export default {
 }
 
 .chat-area-container {
-  flex-grow: 1;
+  width: 88%;
   background-color: #f8f9fa;
   padding: 20px;
+  padding-right: 0px;
   display: flex;
   flex-direction: column;
 }
