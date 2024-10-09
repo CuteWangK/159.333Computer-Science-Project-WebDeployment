@@ -5,10 +5,9 @@ import subprocess
 import time
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CHAT_DIR = os.path.join(BASE_DIR, '..', 'public', 'data')
-
+import requests
 # 确保聊天记录目录存在
 os.makedirs(CHAT_DIR, exist_ok=True)
 
@@ -20,24 +19,39 @@ CORS(app)  # 允许所有来源的跨域请求
 def clean_generated_text(text: str) -> str:
     return text.strip()
 
-
-from llama_cpp import Llama
-
-# 加载 LLaMA 模型
-llama = Llama(model_path="D:/新建文件夹 (4)/下载/model-unsloth.Q4_K_M.gguf", n_gpu_layers=20)
-
 # 生成答案函数
 def generate_answer(content: str) -> str:
     # 更新提示语，直接要求模型生成答案
-    prompt = f"Based on the provided context, generate a detailed answer: {content}"
+    url = "http://localhost:4891/v1/chat/completions"
 
+    # 设置请求数据
+    payload = {
+        "model": "unsloth.Q4_K_M",
+        "messages": [
+            {"role": "user",
+             "content": f"{content}"}
+        ],
+        "max_tokens": 4096,
+        "temperature": 0.7
+    }
+
+    # 设置请求头
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    # 发送POST请求
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
     try:
         # 生成答案，增加max_tokens长度以确保完整的答案
-        output = llama(prompt, max_tokens=64, temperature=0.8, top_p=0.9)
+        json_response = response.json()
+        # 提取并打印 message 里面的 content
+        output = json_response['choices'][0]['message']['content']
 
         if output:  # 检查是否生成成功
-            answer = output["choices"][0]["text"].strip()
-            return clean_generated_text(answer)  # 清理生成的文本
+            return output.strip()
+            # answer = output["choices"][0]["text"].strip()
+            # return clean_generated_text(answer)  # 清理生成的文本
         else:
             return "Error generating answer."
     except Exception as e:
@@ -146,10 +160,12 @@ def load_chat():
 @app.route('/Get_index', methods=['GET'])
 def handle_get_index():
     chats = []
+    chat_counter = 1  # 初始化聊天计数器
     for filename in os.listdir(CHAT_DIR):
         if filename.endswith('.json'):
             file_path = os.path.join(CHAT_DIR, filename)
-            uuid, _ = os.path.splitext(filename)
+            uuid, _ = os.path.splitext(filename)  # 获取 UUID
+
             if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
                 with open(file_path, 'r', encoding='utf-8') as file:
                     try:
@@ -157,20 +173,27 @@ def handle_get_index():
                         # 如果 messages 存在且不为空，则使用第一个消息，否则使用默认值
                         if 'messages' in data and len(data['messages']) > 0:
                             timestamp = data['messages'][0].get('timestamp', int(os.path.getctime(file_path)))
-                            chat_name = data['messages'][0].get('text', '新建聊天')
+                            chat_name = f"New Chat {chat_counter}"
                         else:
+                            # 当聊天记录为空时，使用递增的默认名称
                             timestamp = int(os.path.getctime(file_path))
-                            chat_name = "新建聊天"
-                        chat = {
-                            "uuid": uuid,
-                            "name": chat_name,
-                            "timestamp": timestamp
-                        }
-                        chats.append(chat)
+
                     except json.JSONDecodeError:
                         print(f"文件 {filename} 不是有效的 JSON 格式。")
+                        continue
             else:
-                print(f"文件 {filename} 不存在或为空。")
+                # 文件为空时使用默认值
+                timestamp = int(os.path.getctime(file_path))
+                chat_name = f"New Chat {chat_counter}"
+
+            chat = {
+                "uuid": uuid,
+                "name": chat_name,
+                "timestamp": timestamp
+            }
+            chats.append(chat)
+            chat_counter += 1  # 每次循环递增聊天计数器
+
     return jsonify({'chats': chats}), 200
 
 
@@ -214,4 +237,4 @@ def delete_chat():
 
 # 启动 Flask 应用
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=6000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

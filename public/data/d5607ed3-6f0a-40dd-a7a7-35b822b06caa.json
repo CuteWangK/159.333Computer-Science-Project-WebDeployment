@@ -1,0 +1,14 @@
+{
+    "messages": [
+        {
+            "sender": "You",
+            "text": "What is the primary goal of World Breastfeeding Week and how does USDA's WIC program support this goal?",
+            "timestamp": 1728395552
+        },
+        {
+            "sender": "LLaMA",
+            "text": "USDA’s Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) supports breastfeeding through its nutrition education provided to families participating in the program. The goal of World Breastfeeding Week is to promote awareness on worldwide efforts that aim towards achieving a world where health care for mothers and babies are prioritized.",
+            "timestamp": 1728395554
+        }
+    ]
+}

@@ -74,7 +74,7 @@ export default {
       const newChatId = uuidv4(); // 生成唯一的聊天 ID
       const newChat = {
         uuid: newChatId,
-        name: `新聊天 ${this.chats.length + 1}`,
+        name: `New Chat ${this.chats.length + 1}`,
         timestamp: Math.floor(Date.now() / 1000)
       };
 
@@ -87,7 +87,7 @@ export default {
 
     // 保存新聊天记录到后端（不包含系统信息）
     saveNewChat(newChat) {
-      fetch(' http://127.0.0.1:5000/Save', {
+      fetch('http://127.0.0.1:5000/Save', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -116,7 +116,7 @@ export default {
     // 处理删除聊天
     handleDeleteChat(chatId) {
       // 调用后端删除聊天的接口
-      fetch(` http://127.0.0.1:5000/DeleteChat?id=${chatId}`, {
+      fetch(`http://127.0.0.1:5000/DeleteChat?id=${chatId}`, {
         method: "DELETE"
       })
           .then(response => {
