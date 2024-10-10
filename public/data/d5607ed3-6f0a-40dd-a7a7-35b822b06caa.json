@@ -9,6 +9,36 @@
             "sender": "LLaMA",
             "text": "USDA’s Special Supplemental Nutrition Program for Women, Infants, and Children (WIC) supports breastfeeding through its nutrition education provided to families participating in the program. The goal of World Breastfeeding Week is to promote awareness on worldwide efforts that aim towards achieving a world where health care for mothers and babies are prioritized.",
             "timestamp": 1728395554
+        },
+        {
+            "sender": "You",
+            "text": "What is the primary purpose of the Charles E. Bessey Nursery, which produces over two million seedlings that will eventually become \"forests of the future\"?",
+            "timestamp": 1728433057
+        },
+        {
+            "sender": "LLaMA",
+            "text": "The primary purpose of Charles E. Bessey Nursery is to produce millions of seedlings that will grow into mature trees and forests.",
+            "timestamp": 1728433063
+        },
+        {
+            "sender": "You",
+            "text": "Can you use maple syrup as a topping or ingredient for oatmeal coffee or granola oatmeal?",
+            "timestamp": 1728433213
+        },
+        {
+            "sender": "LLaMA",
+            "text": "Yes, maple syrup can be used in both. However, depending on the brand and how it is processed, some maple syrups may contain more sugar than others. For example, dark amber grade A maple syrup has only 66% of its calories coming from sugar while light golden grade B maple syrup contains about double that amount.",
+            "timestamp": 1728433216
+        },
+        {
+            "sender": "You",
+            "text": "What is the primary goal of the USDA's Summer Electronic Benefit Transfer (EBT) for Children demonstration project in addressing childhood hunger?",
+            "timestamp": 1728433519
+        },
+        {
+            "sender": "LLaMA",
+            "text": "The primary goal of the USDA’s Summer EBT pilot program was to provide low-income children with access to nutritious meals during summer break, when school lunch and breakfast programs are not available.",
+            "timestamp": 1728433520
         }
     ]
 }

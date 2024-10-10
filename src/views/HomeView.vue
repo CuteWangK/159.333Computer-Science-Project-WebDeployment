@@ -74,7 +74,7 @@ export default {
       const newChatId = uuidv4(); // 生成唯一的聊天 ID
       const newChat = {
         uuid: newChatId,
-        name: `New Chat ${this.chats.length + 1}`,
+        name: `New Chat`,
         timestamp: Math.floor(Date.now() / 1000)
       };
 

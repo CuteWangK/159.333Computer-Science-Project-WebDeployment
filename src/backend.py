@@ -173,7 +173,7 @@ def handle_get_index():
                         # 如果 messages 存在且不为空，则使用第一个消息，否则使用默认值
                         if 'messages' in data and len(data['messages']) > 0:
                             timestamp = data['messages'][0].get('timestamp', int(os.path.getctime(file_path)))
-                            chat_name = f"New Chat {chat_counter}"
+                            chat_name = "New Chat"
                         else:
                             # 当聊天记录为空时，使用递增的默认名称
                             timestamp = int(os.path.getctime(file_path))
