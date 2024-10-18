@@ -1,15 +1,15 @@
 <template>
   <div class="home-container">
-    <!-- 侧边栏 -->
+    <!-- Sidebar -->
     <div class="sidebar-container">
       <SideBar :chats="chats" @chat-selected="selectChat" @add-new-chat="handleAddNewChat" @delete-chat="handleDeleteChat" />
     </div>
 
-    <!-- 聊天区域 -->
+    <!-- Chat Area -->
     <div class="chat-area-container">
-      <!-- 仅当有选中聊天时，才显示 ChatArea -->
+      <!-- Display ChatArea only when a chat is selected -->
       <ChatArea v-if="chatId" :chatId="chatId" />
-      <div v-else class="no-chat">请选择一个聊天或新建一个聊天</div>
+      <div v-else class="no-chat">Please select a chat or create a new chat</div>
     </div>
   </div>
 </template>
@@ -17,7 +17,7 @@
 <script>
 import SideBar from "@/components/SideBar.vue";
 import ChatArea from "@/components/ChatArea.vue";
-import { v4 as uuidv4 } from 'uuid'; // 引入 UUID 生成器
+import {v4 as uuidv4} from 'uuid'; // Import UUID generator
 
 export default {
   components: {
@@ -26,33 +26,33 @@ export default {
   },
   data() {
     return {
-      chats: [], // 聊天列表
-      chatId: null // 当前选中的聊天
+      chats: [], // List of chats
+      chatId: null // Currently selected chat
     };
   },
-  props: ['uuid'], // 接受路由参数
+  props: ['uuid'], // Accept route parameters
   mounted() {
-    // 初次加载时获取聊天记录
+    // Fetch chat history on initial load
     this.fetchChats();
-    // 如果通过路由传递了 UUID，加载相应的聊天
+    // If a UUID is passed through the route, load the corresponding chat
     if (this.uuid) {
       this.chatId = this.uuid;
     }
   },
   watch: {
-    '$route.params.uuid': function(newUuid) {
-      this.chatId = newUuid;  // 路由发生变化时，更新 chatId
+    '$route.params.uuid': function (newUuid) {
+      this.chatId = newUuid;  // Update chatId when the route changes
     }
   },
   methods: {
-    // 获取聊天记录
+    // Fetch chat history
     fetchChats() {
       fetch(' http://127.0.0.1:5000/Get_index', {
         method: "GET",
       })
           .then(response => {
             if (!response.ok) {
-              throw new Error('网络响应不是 OK');
+              throw new Error('Network response was not OK');
             }
             return response.json();
           })
@@ -60,32 +60,32 @@ export default {
             this.chats = data['chats'];
           })
           .catch(error => {
-            console.error('发生错误:', error);
+            console.error('An error occurred:', error);
           });
     },
 
-    // 处理选中聊天
+    // Handle selecting a chat
     selectChat(chat) {
-      this.$router.push(`/chat/${chat}`); // 路由导航到聊天页面
+      this.$router.push(`/chat/${chat}`); // Route navigation to the chat page
     },
 
-    // 处理添加新聊天
+    // Handle adding a new chat
     handleAddNewChat() {
-      const newChatId = uuidv4(); // 生成唯一的聊天 ID
+      const newChatId = uuidv4(); // Generate a unique chat ID
       const newChat = {
         uuid: newChatId,
         name: `New Chat`,
         timestamp: Math.floor(Date.now() / 1000)
       };
 
-      // 添加新聊天到聊天列表
+      // Add the new chat to the chat list
       this.chats.push(newChat);
 
-      // 保存到后端
+      // Save to the backend
       this.saveNewChat(newChat);
     },
 
-    // 保存新聊天记录到后端（不包含系统信息）
+    // Save new chat to the backend (without system messages)
     saveNewChat(newChat) {
       fetch('http://127.0.0.1:5000/Save', {
         method: "POST",
@@ -94,48 +94,48 @@ export default {
         },
         body: JSON.stringify({
           id: newChat.uuid,
-          messages: [] // 不插入系统信息，初始化为空的聊天记录
+          messages: [] // No system messages, initialize with an empty chat history
         })
       })
           .then(response => {
             if (!response.ok) {
-              throw new Error('保存聊天记录失败');
+              throw new Error('Failed to save chat history');
             }
             return response.json();
           })
           .then(data => {
-            console.log('聊天记录已保存:', data);
-            // 刷新页面或重新获取聊天记录
+            console.log('Chat history saved:', data);
+            // Refresh the page or refetch chat history
             this.fetchChats();
           })
           .catch(error => {
-            console.error('发生错误:', error);
+            console.error('An error occurred:', error);
           });
     },
 
-    // 处理删除聊天
+    // Handle deleting a chat
     handleDeleteChat(chatId) {
-      // 调用后端删除聊天的接口
+      // Call backend to delete chat
       fetch(`http://127.0.0.1:5000/DeleteChat?id=${chatId}`, {
         method: "DELETE"
       })
           .then(response => {
             if (!response.ok) {
-              throw new Error('删除聊天失败');
+              throw new Error('Failed to delete chat');
             }
             return response.json();
           })
           .then(data => {
-            console.log('聊天已删除:', data);
-            // 从前端列表中移除聊天
+            console.log('Chat deleted:', data);
+            // Remove the chat from the frontend list
             this.chats = this.chats.filter(chat => chat.uuid !== chatId);
-            // 重置当前选中的聊天
+            // Reset currently selected chat
             if (this.chatId === chatId) {
               this.chatId = null;
             }
           })
           .catch(error => {
-            console.error('发生错误:', error);
+            console.error('An error occurred:', error);
           });
     }
   }

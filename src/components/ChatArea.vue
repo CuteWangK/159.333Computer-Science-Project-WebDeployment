@@ -14,10 +14,10 @@
           v-model="newMessage"
           type="text"
           class="form-control"
-          placeholder="请输入您的消息"
+          placeholder="Enter your message"
           @keyup.enter="sendMessage"
       />
-      <button class="btn btn-success mt-2" @click="sendMessage">发送</button>
+      <button class="btn btn-success mt-2" @click="sendMessage">Send</button>
     </div>
   </div>
 </template>
@@ -77,14 +77,14 @@ export default {
           } else {
             messages.value.push({
               sender: "Error",
-              text: "无法生成问题，请稍后重试。",
+              text: "Unable to generate an answer, please try again later.",
               timestamp: getTimestamp(),
             });
           }
         } catch (error) {
           messages.value.push({
             sender: "Error",
-            text: "无法连接到服务器，请检查网络。",
+            text: "Unable to connect to the server, please check your network.",
             timestamp: getTimestamp(),
           });
         } finally {
@@ -111,7 +111,7 @@ export default {
           }),
         });
       } catch (error) {
-        console.error("保存消息时出错:", error);
+        console.error("Error saving message:", error);
       }
     };
 
@@ -121,7 +121,7 @@ export default {
         const response = await axios.get(` http://127.0.0.1:5000/chat/${id}`);
         messages.value = response.data.messages || [];
       } catch (error) {
-        console.error("获取文件时出错:", error);
+        console.error("Error fetching file:", error);
       } finally {
         loading.value = false;
       }
@@ -132,11 +132,11 @@ export default {
     });
 
     watch(
-      () => route.params.uuid,
-      (newUUID) => {
-        uuid.value = newUUID;
-        loadChatData(newUUID);
-      }
+        () => route.params.uuid,
+        (newUUID) => {
+          uuid.value = newUUID;
+          loadChatData(newUUID);
+        }
     );
 
     return {
@@ -174,11 +174,11 @@ export default {
 }
 
 .user-message {
-  justify-content: flex-end; /* 用户消息靠右 */
+  justify-content: flex-end; /* User messages aligned to the right */
 }
 
 .bot-message {
-  justify-content: flex-start; /* 机器人消息靠左 */
+  justify-content: flex-start; /* Bot messages aligned to the left */
 }
 
 .message-content {
@@ -187,17 +187,17 @@ export default {
   background-color: #e9ecef;
   border-radius: 10px;
   word-wrap: break-word;
-  box-sizing: border-box; /* 确保内边距不影响宽度 */
+  box-sizing: border-box; /* Ensures padding does not affect width */
 }
 
 .user-message .message-content {
   background-color: #28a745;
   color: white;
-  margin-left: auto; /* 用户消息右侧 */
+  margin-left: auto; /* User message aligned to the right */
 }
 
 .bot-message .message-content {
-  margin-right: 0; /* 确保机器人消息不超出左边界 */
+  margin-right: 0; /* Ensures bot messages don't exceed left boundary */
 }
 
 .chat-input {

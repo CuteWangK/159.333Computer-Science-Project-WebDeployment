@@ -2,17 +2,17 @@
   <div class="sidebar">
     <h5 class="sidebar-title">Chat Sidebar</h5>
 
-    <!-- 添加新聊天按钮，固定大小，文字始终为 NEW CHAT -->
+    <!-- Add a new chat button with fixed size, always displaying NEW CHAT -->
     <button class="btn btn-primary mb-3 fixed-size-btn" @click="addNewChat">NEW CHAT</button>
 
     <ul class="list-group">
       <li v-for="chat in sortedChats" :key="chat.uuid" class="list-group-item">
         <div class="d-flex justify-content-between">
-          <!-- 点击聊天记录时触发 handleChatClick -->
+          <!-- Trigger handleChatClick when clicking on a chat record -->
           <span @click="handleChatClick(chat.uuid)">
             {{ chat.name }} ({{ formatTimestamp(chat.timestamp) }})
           </span>
-          <!-- 删除聊天 -->
+          <!-- Delete chat -->
           <button class="btn btn-danger btn-sm" @click="deleteChat(chat.uuid)">Delete</button>
         </div>
       </li>
@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     sortedChats() {
-      // 按时间戳降序排列聊天记录
+      // Sort chat records in descending order by timestamp
       // eslint-disable-next-line vue/no-mutating-props,vue/no-side-effects-in-computed-properties
       return this.chats.sort((a, b) => b.timestamp - a.timestamp);
     }
@@ -41,15 +41,15 @@ export default {
       return date.toLocaleString();
     },
     handleChatClick(chatId) {
-      // 触发父组件的路由导航
+      // Trigger parent component's route navigation
       this.$emit('chat-selected', chatId);
     },
     addNewChat() {
-      // 触发父组件添加新聊天事件
+      // Trigger parent component's add new chat event
       this.$emit('add-new-chat');
     },
     deleteChat(chatId) {
-      // 触发父组件删除聊天事件
+      // Trigger parent component's delete chat event
       this.$emit('delete-chat', chatId);
     }
   }
@@ -74,11 +74,11 @@ export default {
 }
 
 .fixed-size-btn {
-  width: 150px; /* 固定宽度 */
-  height: 40px; /* 固定高度 */
-  white-space: nowrap; /* 禁止换行 */
-  overflow: hidden; /* 超出部分隐藏 */
-  text-overflow: ellipsis; /* 溢出部分使用省略号 */
+  width: 150px; /* Fixed width */
+  height: 40px; /* Fixed height */
+  white-space: nowrap; /* Prevent line breaks */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Show ellipsis for overflow */
   display: inline-block;
 }
 
@@ -88,10 +88,10 @@ export default {
   color: #fff;
   border: none;
   padding: 10px 15px;
-  min-height: 50px; /* 设置最小高度 */
-  display: flex; /* 使用 Flexbox 布局 */
-  justify-content: space-between; /* 分隔元素 */
-  align-items: center; /* 垂直居中对齐 */
+  min-height: 50px; /* Set minimum height */
+  display: flex; /* Use Flexbox layout */
+  justify-content: space-between; /* Space elements apart */
+  align-items: center; /* Vertically align items */
 }
 
 .list-group-item:hover {
